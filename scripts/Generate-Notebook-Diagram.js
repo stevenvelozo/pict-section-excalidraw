@@ -123,6 +123,9 @@ function topoRank(pNodes, pEdges)
 	for (let i = 0; i < pNodes.length; i++) tmpIncoming[pNodes[i].id] = 0;
 	for (let i = 0; i < pEdges.length; i++)
 	{
+		// Self-loops don't contribute to incoming degree — otherwise the
+		// only node in a single-self-loop graph never reaches the queue.
+		if (pEdges[i].from === pEdges[i].to) continue;
 		if (tmpById[pEdges[i].to]) tmpIncoming[pEdges[i].to] = (tmpIncoming[pEdges[i].to] || 0) + 1;
 	}
 
@@ -144,6 +147,7 @@ function topoRank(pNodes, pEdges)
 		tmpProcessed++;
 		for (let j = 0; j < pEdges.length; j++)
 		{
+			if (pEdges[j].from === pEdges[j].to) continue;
 			if (pEdges[j].from === tmpId)
 			{
 				let tmpTo = pEdges[j].to;
@@ -192,6 +196,28 @@ function autoLayoutFlow(pNodes, pEdges, pProfile)
 	let tmpVGap = pProfile.Layout.verticalGap   || 120;
 	let tmpPad  = pProfile.Layout.padding       || 40;
 	let tmpTitleSpace = 80; // leave room above the diagram for the title
+
+	// Self-loops on rank-0 nodes arch up out of the diagram's normal
+	// vertical extent.  Reserve enough headroom that the loop's apex and
+	// its edge label both clear the title.
+	let tmpById = {};
+	for (let i = 0; i < tmpRanked.length; i++) tmpById[tmpRanked[i].id] = tmpRanked[i];
+	let tmpRank0LoopH = 0;
+	for (let i = 0; i < pEdges.length; i++)
+	{
+		let tmpE = pEdges[i];
+		if (tmpE.from !== tmpE.to) continue;
+		let tmpN = tmpById[tmpE.from];
+		if (!tmpN || tmpN.__rank !== 0) continue;
+		let tmpLoopH = selfLoopHeightFor(sizeFor(tmpN, pProfile).height);
+		if (tmpLoopH > tmpRank0LoopH) tmpRank0LoopH = tmpLoopH;
+	}
+	if (tmpRank0LoopH > 0)
+	{
+		let tmpEdgeLabelFs = Math.max(14, (pProfile.FontSize || 20) - 4);
+		let tmpEdgeLabelH  = Math.ceil(tmpEdgeLabelFs * 1.25);
+		tmpTitleSpace += tmpRank0LoopH + tmpEdgeLabelH + 12;
+	}
 
 	let tmpRanks = Object.keys(tmpByRank).map((k) => parseInt(k, 10)).sort((a, b) => a - b);
 
@@ -417,19 +443,19 @@ function buildLabelElement(pNode, pShape, pProfile)
 	return tmpEl;
 }
 
+// Loop height for a self-loop on a node of the given height.  Shared
+// between the arrow builder (which draws the arch) and autoLayoutFlow
+// (which reserves matching headroom above rank-0 self-loops).
+function selfLoopHeightFor(pNodeHeight)
+{
+	return Math.max(60, Math.round(pNodeHeight * 0.8));
+}
+
 function buildArrowElement(pEdge, pFromShape, pToShape, pProfile)
 {
 	let tmpSeed = seedFor(pProfile, 'arrow:' + pEdge.from + '->' + pEdge.to);
 	let tmpId   = idFor('arrow-' + pEdge.from + '-' + pEdge.to, tmpSeed);
-
-	// Excalidraw arrows are stored as points relative to (x, y).  We anchor
-	// the arrow at the from-shape's right edge and let Excalidraw recompute
-	// the endpoints through the startBinding/endBinding constraints when
-	// the user moves shapes.
-	let tmpStartX = pFromShape.x + pFromShape.width;
-	let tmpStartY = pFromShape.y + pFromShape.height / 2;
-	let tmpEndX   = pToShape.x;
-	let tmpEndY   = pToShape.y + pToShape.height / 2;
+	let tmpIsSelfLoop = (pFromShape === pToShape);
 
 	let tmpKind         = pEdge.kind || 'solid';        // 'solid' | 'dashed' | 'dotted' | 'curved'
 	let tmpStrokeStyle  = (tmpKind === 'dashed' || tmpKind === 'dotted') ? tmpKind : 'solid';
@@ -437,13 +463,57 @@ function buildArrowElement(pEdge, pFromShape, pToShape, pProfile)
 	                       ? pProfile.Palette[pEdge.accent || 'link']
 	                       : (pProfile.Palette && pProfile.Palette.link) || '#2E7D74';
 
+	// Excalidraw arrows are stored as points relative to (x, y).  For a
+	// normal edge we anchor the arrow at the from-shape's right edge and
+	// let Excalidraw recompute the endpoints through the startBinding /
+	// endBinding constraints when the user moves shapes.  For a self-loop
+	// we hand-build a four-point arch over the top of the node and skip
+	// the bindings (otherwise Excalidraw would straight-line the path
+	// between the bound shape's edges, defeating the points we wrote).
+	let tmpAabbX, tmpAabbY, tmpAabbW, tmpAabbH, tmpPoints;
+	let tmpStartBinding, tmpEndBinding;
+	if (tmpIsSelfLoop)
+	{
+		let tmpLoopH     = selfLoopHeightFor(pFromShape.height);
+		let tmpStartAbsX = pFromShape.x + Math.round(pFromShape.width * 0.7);
+		let tmpEndAbsX   = pFromShape.x + Math.round(pFromShape.width * 0.3);
+		tmpAabbX = tmpEndAbsX;
+		tmpAabbY = pFromShape.y - tmpLoopH;
+		tmpAabbW = tmpStartAbsX - tmpEndAbsX;
+		tmpAabbH = tmpLoopH;
+		// Path: start (top-right of node) → up → across → end (top-left).
+		// With roundness 2 Excalidraw smooths the corners into an arc.
+		tmpPoints = [
+			[ tmpAabbW, tmpAabbH ],
+			[ tmpAabbW, 0        ],
+			[ 0,        0        ],
+			[ 0,        tmpAabbH ]
+		];
+		tmpStartBinding = null;
+		tmpEndBinding   = null;
+	}
+	else
+	{
+		let tmpStartX = pFromShape.x + pFromShape.width;
+		let tmpStartY = pFromShape.y + pFromShape.height / 2;
+		let tmpEndX   = pToShape.x;
+		let tmpEndY   = pToShape.y + pToShape.height / 2;
+		tmpAabbX = tmpStartX;
+		tmpAabbY = tmpStartY;
+		tmpAabbW = tmpEndX - tmpStartX;
+		tmpAabbH = tmpEndY - tmpStartY;
+		tmpPoints = [ [0, 0], [ tmpAabbW, tmpAabbH ] ];
+		tmpStartBinding = { elementId: pFromShape.id, focus: 0, gap: 8 };
+		tmpEndBinding   = { elementId: pToShape.id,   focus: 0, gap: 8 };
+	}
+
 	let tmpEl = {
 		id:                tmpId,
 		type:              'arrow',
-		x:                 tmpStartX,
-		y:                 tmpStartY,
-		width:             tmpEndX - tmpStartX,
-		height:            tmpEndY - tmpStartY,
+		x:                 tmpAabbX,
+		y:                 tmpAabbY,
+		width:             tmpAabbW,
+		height:            tmpAabbH,
 		angle:             0,
 		strokeColor:       tmpStrokeColor,
 		backgroundColor:   'transparent',
@@ -463,10 +533,10 @@ function buildArrowElement(pEdge, pFromShape, pToShape, pProfile)
 		updated:           1,
 		link:              null,
 		locked:            false,
-		points:            [ [0, 0], [ tmpEndX - tmpStartX, tmpEndY - tmpStartY ] ],
+		points:            tmpPoints,
 		lastCommittedPoint: null,
-		startBinding:      { elementId: pFromShape.id, focus: 0, gap: 8 },
-		endBinding:        { elementId: pToShape.id,   focus: 0, gap: 8 },
+		startBinding:      tmpStartBinding,
+		endBinding:        tmpEndBinding,
 		startArrowhead:    null,
 		endArrowhead:      'arrow',
 		elbowed:           false,
@@ -474,11 +544,16 @@ function buildArrowElement(pEdge, pFromShape, pToShape, pProfile)
 	};
 
 	// Carry the from/to shape binding info on the shapes themselves so
-	// Excalidraw redraws the arrow correctly on shape moves.
+	// Excalidraw redraws the arrow correctly on shape moves.  For a
+	// self-loop both endpoints land on the same shape; record the arrow
+	// once to avoid a duplicate entry.
 	pFromShape.boundElements = pFromShape.boundElements || [];
-	pToShape.boundElements   = pToShape.boundElements   || [];
 	pFromShape.boundElements.push({ id: tmpEl.id, type: 'arrow' });
-	pToShape.boundElements.push({   id: tmpEl.id, type: 'arrow' });
+	if (pToShape !== pFromShape)
+	{
+		pToShape.boundElements = pToShape.boundElements || [];
+		pToShape.boundElements.push({ id: tmpEl.id, type: 'arrow' });
+	}
 
 	return tmpEl;
 }
@@ -490,17 +565,34 @@ function buildEdgeLabel(pEdge, pArrow, pProfile)
 	let tmpId       = idFor('edge-label-' + pEdge.from + '-' + pEdge.to, tmpSeed);
 	let tmpFontSize = Math.max(14, (pProfile.FontSize || 20) - 4);
 
-	// Center the label on the arrow midpoint.
-	let tmpMidX = pArrow.x + pArrow.width  / 2;
-	let tmpMidY = pArrow.y + pArrow.height / 2;
 	let tmpW    = Math.max(40, (pEdge.label.length * tmpFontSize * 0.55));
 	let tmpH    = Math.ceil(tmpFontSize * 1.25);
+
+	let tmpX, tmpY;
+	if (pEdge.from === pEdge.to)
+	{
+		// Self-loop: pArrow.y is the apex of the arch (the AABB top) and
+		// pArrow.x is the arch's leftmost x.  Center the label above the
+		// apex rather than at the midpoint — the geometric midpoint sits
+		// inside the arch (or on top of the node body for shallow loops).
+		let tmpCenterX = pArrow.x + pArrow.width / 2;
+		tmpX = Math.round(tmpCenterX - tmpW / 2);
+		tmpY = Math.round(pArrow.y - tmpH - 6);
+	}
+	else
+	{
+		// Center the label on the arrow midpoint.
+		let tmpMidX = pArrow.x + pArrow.width  / 2;
+		let tmpMidY = pArrow.y + pArrow.height / 2;
+		tmpX = Math.round(tmpMidX - tmpW / 2);
+		tmpY = Math.round(tmpMidY - tmpH / 2 - 6);
+	}
 
 	let tmpEl = {
 		id:               tmpId,
 		type:             'text',
-		x:                Math.round(tmpMidX - tmpW / 2),
-		y:                Math.round(tmpMidY - tmpH / 2 - 6),
+		x:                tmpX,
+		y:                tmpY,
 		width:            tmpW,
 		height:           tmpH,
 		angle:            0,
