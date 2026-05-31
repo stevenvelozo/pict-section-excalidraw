@@ -85,7 +85,8 @@ In `iframe` mode, theme tokens are piped through `postMessage` and re-applied as
 vendor/
 ├── excalidraw/                  Frozen-in-time mirror of github.com/excalidraw/excalidraw
 └── excalidraw-built/            Pre-built artifacts shipped to consumers (committed)
-    ├── excalidraw-wrapper.min.js  React + ReactDOM + @excalidraw/excalidraw, exposed as window globals
+    ├── react-vendor.min.js        React + ReactDOM as window globals (omit if the host already loads React)
+    ├── excalidraw-wrapper.min.js  @excalidraw/excalidraw + helpers, exposed as window.PictSectionExcalidrawVendor (reads React off the window)
     ├── excalidraw-wrapper.css     The @excalidraw/excalidraw stylesheet
     ├── excalidraw-iframe-host.html
     ├── excalidraw-iframe-host.js

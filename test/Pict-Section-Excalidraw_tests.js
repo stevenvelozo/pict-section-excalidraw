@@ -232,6 +232,39 @@ suite
 					Expect(tmpView.getApi()).to.equal(null);
 					return fDone();
 				});
+
+					test('Iframe exportBlob() resolves when the host posts a blobReply', (fDone) =>
+					{
+						let tmpPict = configureTestPict();
+						let tmpView = tmpPict.addView(
+							'TestExcalidrawIframeBlob',
+							{ EmbedMode: 'iframe', ViewIdentifier: 'TestExcalidrawIframeBlob' },
+							libPictSectionExcalidraw.IframeView
+						);
+
+						let tmpFakeBlob = { __isBlob: true, size: 42 };
+						let tmpPromise = tmpView.exportBlob({ mimeType: 'image/png' });
+
+						// exportBlob() registers a pending request keyed by requestId and posts
+						// requestBlob to the iframe.  Simulate the host's blobReply: before the
+						// fix the parent ignored blobReply, so the promise never resolved.
+						let tmpRequestIds = Object.keys(tmpView._pendingRequests);
+						Expect(tmpRequestIds.length).to.equal(1);
+
+						tmpView._handleIframeMessage(
+							{
+								type: 'pict-excalidraw:blobReply',
+								requestId: Number(tmpRequestIds[0]),
+								payload: tmpFakeBlob
+							});
+
+						tmpPromise.then((pResult) =>
+						{
+							Expect(pResult).to.equal(tmpFakeBlob);
+							Expect(Object.keys(tmpView._pendingRequests).length).to.equal(0);
+							return fDone();
+						}).catch((pErr) => { return fDone(pErr); });
+					});
 			}
 		);
 

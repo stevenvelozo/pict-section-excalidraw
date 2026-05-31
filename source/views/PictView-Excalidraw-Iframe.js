@@ -147,10 +147,12 @@ class PictViewExcalidrawIframe extends libPictViewClass
 
 			case 'pict-excalidraw:sceneReply':
 			case 'pict-excalidraw:svgReply':
+			case 'pict-excalidraw:blobReply':
 			{
 				let tmpReq = this._pendingRequests[pData.requestId];
 				if (tmpReq)
 				{
+					clearTimeout(tmpReq.timeout);
 					delete this._pendingRequests[pData.requestId];
 					tmpReq.resolve(pData.payload);
 				}
@@ -162,6 +164,7 @@ class PictViewExcalidrawIframe extends libPictViewClass
 				let tmpReq = pData.requestId && this._pendingRequests[pData.requestId];
 				if (tmpReq)
 				{
+					clearTimeout(tmpReq.timeout);
 					delete this._pendingRequests[pData.requestId];
 					tmpReq.reject(new Error(pData.message || 'iframe error'));
 				}
@@ -358,8 +361,8 @@ class PictViewExcalidrawIframe extends libPictViewClass
 		{
 			this._pendingRequests[tmpId] = { resolve: fResolve, reject: fReject };
 			this._postToIframe(Object.assign({ type: pType, requestId: tmpId }, pExtra || {}));
-			// Safety timeout — 30s
-			setTimeout(() =>
+			// Safety timeout — 30s (cleared on reply / destroy)
+			this._pendingRequests[tmpId].timeout = setTimeout(() =>
 			{
 				if (this._pendingRequests[tmpId])
 				{
@@ -509,7 +512,8 @@ class PictViewExcalidrawIframe extends libPictViewClass
 			let tmpReq = this._pendingRequests[tmpReqKeys[i]];
 			if (tmpReq && typeof tmpReq.reject === 'function')
 			{
-				try { tmpReq.reject(new Error('view destroyed')); }
+				clearTimeout(tmpReq.timeout);
+					try { tmpReq.reject(new Error('view destroyed')); }
 				catch (pErr) { /* ignore */ }
 			}
 		}
