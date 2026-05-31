@@ -1,0 +1,119 @@
+{
+	"Generated": "2026-05-31T01:23:03.784Z",
+	"Mode": "module",
+	"GitHubOrg": "fable-retold",
+	"DefaultBranch": "master",
+	"Module": {
+		"Name": "pict-section-excalidraw",
+		"Repo": "pict-section-excalidraw",
+		"Group": "",
+		"Branch": "master",
+		"HasDocs": true,
+		"HasCover": true,
+		"Sidebar": [
+			{
+				"Title": "Getting Started",
+				"Children": [
+					{
+						"Title": "Overview",
+						"Path": "README.md"
+					},
+					{
+						"Title": "Quick Start",
+						"Path": "quickstart.md"
+					}
+				]
+			},
+			{
+				"Title": "Reference",
+				"Children": [
+					{
+						"Title": "Architecture",
+						"Path": "architecture.md"
+					},
+					{
+						"Title": "Configuration",
+						"Path": "configuration.md"
+					},
+					{
+						"Title": "API Reference",
+						"Path": "api-reference.md"
+					}
+				]
+			},
+			{
+				"Title": "Retold Ecosystem",
+				"Children": [
+					{
+						"Title": "Pict",
+						"Path": "https://fable-retold.github.io/pict/README.md"
+					},
+					{
+						"Title": "Pict View",
+						"Path": "https://fable-retold.github.io/pict-view/README.md"
+					},
+					{
+						"Title": "Pict Section Theme",
+						"Path": "https://fable-retold.github.io/pict-section-theme/README.md"
+					},
+					{
+						"Title": "Pict Renderer Graph",
+						"Path": "https://fable-retold.github.io/pict-renderer-graph/README.md"
+					},
+					{
+						"Title": "Retold Content System",
+						"Path": "https://fable-retold.github.io/retold-content-system/README.md"
+					}
+				]
+			}
+		],
+		"DocFiles": [
+			"README.md",
+			"_cover.md",
+			"_sidebar.md",
+			"api-reference.md",
+			"architecture.md",
+			"configuration.md",
+			"quickstart.md",
+			"@excalidraw/excalidraw/api/api-intro.mdx",
+			"@excalidraw/excalidraw/api/children-components/children-components-intro.mdx",
+			"@excalidraw/excalidraw/api/children-components/footer.mdx",
+			"@excalidraw/excalidraw/api/children-components/live-collaboration-trigger.mdx",
+			"@excalidraw/excalidraw/api/children-components/main-menu.mdx",
+			"@excalidraw/excalidraw/api/children-components/sidebar.mdx",
+			"@excalidraw/excalidraw/api/children-components/welcome-screen.mdx",
+			"@excalidraw/excalidraw/api/constants.mdx",
+			"@excalidraw/excalidraw/api/excalidraw-element-skeleton.mdx",
+			"@excalidraw/excalidraw/api/props/excalidraw-api.mdx",
+			"@excalidraw/excalidraw/api/props/initialdata.mdx",
+			"@excalidraw/excalidraw/api/props/props.mdx",
+			"@excalidraw/excalidraw/api/props/render-props.mdx",
+			"@excalidraw/excalidraw/api/props/ui-options.mdx",
+			"@excalidraw/excalidraw/api/utils/export.mdx",
+			"@excalidraw/excalidraw/api/utils/restore.mdx",
+			"@excalidraw/excalidraw/api/utils/utils-intro.md",
+			"@excalidraw/excalidraw/customizing-styles.mdx",
+			"@excalidraw/excalidraw/development.mdx",
+			"@excalidraw/excalidraw/faq.mdx",
+			"@excalidraw/excalidraw/installation.mdx",
+			"@excalidraw/excalidraw/integration.mdx",
+			"@excalidraw/mermaid-to-excalidraw/api.mdx",
+			"@excalidraw/mermaid-to-excalidraw/codebase/codebase.mdx",
+			"@excalidraw/mermaid-to-excalidraw/codebase/new-diagram-type.mdx",
+			"@excalidraw/mermaid-to-excalidraw/codebase/parser/flowchart.mdx",
+			"@excalidraw/mermaid-to-excalidraw/codebase/parser/parser.mdx",
+			"@excalidraw/mermaid-to-excalidraw/development.mdx",
+			"@excalidraw/mermaid-to-excalidraw/installation.mdx",
+			"assets/aggressive-block-fingerprint.png",
+			"assets/block-fingerprint.png",
+			"assets/brave-shield.png",
+			"assets/nerd-stats.png",
+			"codebase/frames.mdx",
+			"codebase/json-schema.mdx",
+			"introduction/contributing.mdx",
+			"introduction/development.mdx",
+			"introduction/get-started.mdx"
+		]
+	},
+	"Groups": []
+}
