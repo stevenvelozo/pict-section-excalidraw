@@ -147,6 +147,7 @@ class PictViewExcalidrawIframe extends libPictViewClass
 
 			case 'pict-excalidraw:sceneReply':
 			case 'pict-excalidraw:svgReply':
+			case 'pict-excalidraw:blobReply':
 			{
 				let tmpReq = this._pendingRequests[pData.requestId];
 				if (tmpReq)
