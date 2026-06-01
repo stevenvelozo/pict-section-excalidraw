@@ -42,7 +42,7 @@ In `react` mode (the default), include the bundles in your page. Order matters -
      is already loaded elsewhere on the page. -->
 <script src="./react-vendor.min.js"></script>
 
-<!-- Excalidraw wrapper — must come AFTER react-vendor. -->
+<!-- Excalidraw wrapper - must come AFTER react-vendor. -->
 <script src="./excalidraw-wrapper.min.js"></script>
 
 <!-- Your built Pict application bundle. -->

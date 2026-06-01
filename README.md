@@ -4,7 +4,7 @@ A Pict view that wraps [Excalidraw](https://excalidraw.com) as an embeddable, th
 
 ## Why this exists
 
-Excalidraw is wonderful but it's React-only and lives upstream on GitHub. To insulate the Retold ecosystem from upstream drift (and from GitHub itself disappearing), this module **mirrors the entire Excalidraw repository** into `vendor/excalidraw/`. The mirror has no `.git/` — it's frozen-in-time source we can patch in place and rebuild. Drift is a feature.
+Excalidraw is wonderful but it's React-only and lives upstream on GitHub. To insulate the Retold ecosystem from upstream drift (and from GitHub itself disappearing), this module **mirrors the entire Excalidraw repository** into `vendor/excalidraw/`. The mirror has no `.git/` - it's frozen-in-time source we can patch in place and rebuild. Drift is a feature.
 
 ## Modes
 
@@ -43,11 +43,11 @@ Both modes share the same public API.
 ### Methods
 
 ```javascript
-view.getScene()                  // → { elements, appState, files }
+view.getScene()                  // -> { elements, appState, files }
 view.setScene(sceneData)         // void
-view.exportSvg(opts)             // → Promise<SVGElement>
-view.exportBlob(opts)            // → Promise<Blob>  (PNG)
-view.serialize()                 // → JSON string of the current scene
+view.exportSvg(opts)             // -> Promise<SVGElement>
+view.exportBlob(opts)            // -> Promise<Blob>  (PNG)
+view.serialize()                 // -> JSON string of the current scene
 view.setTheme('light'|'dark')    // void
 view.setReadOnly(bool)           // void
 view.load()                      // re-invokes OnLoad and applies result
@@ -57,7 +57,7 @@ view.destroy()                   // teardown
 
 ### Override loading & saving
 
-Pass `OnLoad` and `OnSave` callbacks to plug into whatever storage layer you want — local files, a Meadow record, IndexedDB, or a remote API. If you don't pass them, the view defaults to reading/writing the AppData address you bind via `DrawingDataAddress`.
+Pass `OnLoad` and `OnSave` callbacks to plug into whatever storage layer you want - local files, a Meadow record, IndexedDB, or a remote API. If you don't pass them, the view defaults to reading/writing the AppData address you bind via `DrawingDataAddress`.
 
 ```javascript
 {

@@ -40,7 +40,7 @@ The same configuration object backs the dispatcher and both implementation views
 
 	"Templates": [ /* default placeholder container */ ],
 	"Renderables": [ /* default renderable */ ],
-	"CSS": "/* theme-bridge CSS — see below */"
+	"CSS": "/* theme-bridge CSS - see below */"
 }
 ```
 

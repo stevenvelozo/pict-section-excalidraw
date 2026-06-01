@@ -210,7 +210,7 @@ The bridge is declared in the default-configuration CSS on the `.pict-excalidraw
 	--island-bg-color:    var(--theme-color-background-secondary, #FFFFFF);
 	--color-primary:      var(--theme-color-brand-primary, #6965DB);
 	--button-hover-bg:    var(--theme-color-background-hover, #F1F0FF);
-	/* ...and more — see Pict-Section-Excalidraw-DefaultConfiguration.js */
+	/* ...and more - see Pict-Section-Excalidraw-DefaultConfiguration.js */
 }
 ```
 
@@ -261,7 +261,7 @@ pict-section-excalidraw/
 ├── scripts/
 │   ├── Build-Vendor-Bundles.js                        Builds vendor/excalidraw-built/
 │   └── Generate-Notebook-Diagram.js
-├── vendor/                                            (mirrored Excalidraw — not this module's API)
+├── vendor/                                            (mirrored Excalidraw - not this module's API)
 ├── example_applications/
 │   ├── full_browser_excalidraw/
 │   ├── embedded_excalidraw/
